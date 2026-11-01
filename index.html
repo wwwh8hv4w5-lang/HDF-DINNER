@@ -5206,7 +5206,7 @@ const VOICE = { F: null, M: null, D: null, list: [],
   prof(who) { const w = (who || '').replace(/\s*\(.*\)$/, ''); const fem = g => g === 'f';
     if (w === 'Ilona') return { v: 'F', r: .93, p: 1.12 };
     if (w === ID.f) return { v: fem(ID.fg) ? 'F' : 'M', r: 1.03, p: fem(ID.fg) ? 1.18 : .98 };
-    if (w === ID.p) return { v: fem(ID.pg) ? 'F' : 'M', r: 1.0, p: fem(ID.pg) ? 1.02 : .9 };
+    if (w === ID.p) return null; // le personnage du joueur ne parle jamais en synthèse vocale
     if (w === 'Marius') return { v: 'M', r: .84, p: .62 };
     if (w === 'Majordome') return { v: 'M', r: .88, p: .7 };
     if (w === 'Servante') return { v: 'F', r: 1, p: 1.05 };
@@ -5265,7 +5265,7 @@ const UI = (() => {
       VOICE.say(fil(txt), who); if (d.hidden) api.open('dlg'); api._dlgRes = () => { api._dlgRes = null; res(); }; d.onclick = () => api._dlgRes && api._dlgRes(); }); },
     choose(who, txt, opts) { return new Promise(res => { const d = $('dlg'); $('dWho').textContent = who || ''; $('dTxt').innerHTML = fil(txt || ''); $('dNext').hidden = true; d.onclick = null; api._dlgRes = null;
       if (txt) VOICE.say(fil(txt), who);
-      $('dCh').innerHTML = ''; opts.forEach((o, i) => { const b = document.createElement('button'); b.className = 'btn'; b.innerHTML = `<b>${i + 1}.</b> ${fil(o)}`; b.onclick = e => { e.stopPropagation(); AU.ui(); if ($('dCh').dataset.busy) return; let d = 0; if (/^«/.test(o.trim())) { d = VOICE.say(fil(o), ID.p); $('dWho').textContent = ID.p; $('dTxt').innerHTML = fil(o); $('dCh').innerHTML = ''; } if (d) { $('dCh').dataset.busy = 1; setTimeout(() => { delete $('dCh').dataset.busy; res(i); }, Math.min(d, 4.5) * 1000); } else res(i); }; $('dCh').appendChild(b); });
+      $('dCh').innerHTML = ''; opts.forEach((o, i) => { const b = document.createElement('button'); b.className = 'btn'; b.innerHTML = `<b>${i + 1}.</b> ${fil(o)}`; b.onclick = e => { e.stopPropagation(); AU.ui(); if ($('dCh').dataset.busy) return; let d = 0; if (/^«/.test(o.trim())) { d = 1.3; $('dWho').textContent = ID.p; $('dTxt').innerHTML = fil(o); $('dCh').innerHTML = ''; } if (d) { $('dCh').dataset.busy = 1; setTimeout(() => { delete $('dCh').dataset.busy; res(i); }, d * 1000); } else res(i); }; $('dCh').appendChild(b); });
       if (d.hidden) api.open('dlg'); focusI = 0; api.refocus(); api._chooseKeys = i => { const b = $('dCh').children[i]; if (b) b.click(); }; }); },
     endDlg() { if (!$('dlg').hidden) api.close('dlg'); api._chooseKeys = null; },
     dlgTick() { if ($('dlg').hidden) return; if (api._dlgRes && (took('confirm') || took('act') || took('back') || took('tapLook'))) { AU.ui(); api._dlgRes(); return; }
