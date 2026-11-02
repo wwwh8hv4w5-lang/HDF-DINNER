@@ -151,6 +151,39 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 #rot svg{width:84px;height:84px;stroke:#ffb340;fill:none;stroke-width:1.6;animation:rot 2.4s ease-in-out infinite}@keyframes rot{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 @media (orientation:portrait) and (pointer:coarse){body.playing #rot:not(.off){display:flex}}
 #err{position:fixed;inset:0;z-index:99;background:#000;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;font:500 17px/1.5 var(--f-b)}
+
+/* ---------- grands textes (jeu à la manette à distance) : --ts = facteur choisi dans les options */
+:root{--ts:1.75}
+:root{--tsm:1}
+@media (max-width:700px),(max-height:430px){:root{--tsm:.78}}
+html{--k:calc(var(--ts) * var(--tsm,1))}
+.lbl{font-size:calc(11px * var(--k))}
+.btn{font-size:calc(17px * var(--k));min-height:calc(48px * var(--k));padding:calc(10px * var(--k)) calc(18px * var(--k))}
+.seg .btn{font-size:calc(15px * var(--k));min-height:calc(42px * var(--k))}
+input[type=text]{font-size:calc(20px * var(--k));min-height:calc(48px * var(--k))}
+#obj{max-width:min(calc(340px * var(--k)),62vw);padding:calc(10px * var(--k)) calc(13px * var(--k))}
+#obj .t{font-size:calc(15px * var(--k))}#obj .z{font-size:calc(11px * var(--k))}
+#prompt{font-size:calc(17px * var(--k));top:calc(50% + 30px + 10px * var(--k));padding:calc(9px * var(--k)) calc(14px * var(--k))}
+.k{min-width:calc(26px * var(--k));height:calc(26px * var(--k));font-size:calc(14px * var(--k))}.k.ps{width:calc(26px * var(--k))}
+#sub{font-size:calc(19px * var(--k));width:min(calc(760px * var(--k)),94vw);bottom:calc(var(--sb) + 110px + 40px * var(--k))}
+#toast div{font-size:calc(14px * var(--k))}
+#dlg{width:min(calc(820px * var(--k)),calc(100vw - 28px));gap:calc(10px * var(--k));padding:calc(14px * var(--k)) calc(16px * var(--k))}
+#dlg .who{font-size:calc(14px * var(--k))}#dlg .txt{font-size:calc(19px * var(--k))}
+#dlg .ch .btn{font-size:calc(17px * var(--k));min-height:calc(46px * var(--k))}#dlg .next{font-size:calc(12px * var(--k))}
+.ph h2{font-size:calc(24px * var(--k))}.tabs .btn{font-size:calc(14px * var(--k));min-height:calc(40px * var(--k))}
+#inv,#pause,#doc{width:min(calc(780px * var(--k)),calc(100vw - 28px))}
+#invGrid{grid-template-columns:repeat(auto-fill,minmax(calc(150px * var(--k)),1fr))}
+#invGrid .btn{font-size:calc(16px * var(--k));min-height:calc(74px * var(--k))}#invGrid .btn small{font-size:calc(12px * var(--k))}
+#invDesc,.obj div{font-size:calc(15px * var(--k))}
+#doc .paper{font-size:calc(16px * var(--k))}#doc .paper h3{font-size:calc(20px * var(--k))}#doc .paper.screen{font-size:calc(14px * var(--k))}
+#pause label{font-size:calc(13px * var(--k))}#ctrls{font-size:calc(14px * var(--k))}
+#pick{width:min(calc(460px * var(--k)),calc(100vw - 28px))}#pickTxt{font-size:calc(15px * var(--k))}
+#fade .cap{max-width:min(calc(760px * var(--k)),94vw);font-size:clamp(calc(20px * var(--k)),calc(3.4vw * var(--k)),calc(32px * var(--k)))}
+#bAct span{font-size:calc(10px * var(--k))}
+#title .hint{font-size:calc(13px * var(--k))}#loading{font-size:calc(13px * var(--k))}#title .sub{font-size:calc(22px * var(--k))}
+#gpHint{font-size:calc(12px * var(--k))}
+#title{align-items:flex-start}#title .wrap{margin:auto;width:min(calc(560px * var(--k) * .85),100%)}#title .row{grid-template-columns:minmax(0,1fr) auto}#title .seg .btn{padding-inline:calc(14px * var(--k))}
+#tTs .btn,#oTs .btn{flex:1;text-transform:none}#eye svg{width:calc(34px * var(--k));height:calc(20px * var(--k))}#eye .bar{width:calc(70px * var(--k))}
 </style></head>
 <body>
 <canvas id="c" tabindex="0"></canvas>
@@ -205,6 +238,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <label>Axe vertical<div class="seg" id="oInv"><button class="btn on" data-v="0">Normal</button><button class="btn" data-v="1">Inversé</button></div></label>
     <label>Qualité graphique<div class="seg" id="oQ"><button class="btn" data-v="basse">Basse</button><button class="btn" data-v="moyenne">Moyenne</button><button class="btn" data-v="haute">Haute</button></div></label>
     <label>Voix de synthèse (tous les personnages)<div class="seg" id="oVoice"><button class="btn on" data-v="1">Activée</button><button class="btn" data-v="0">Coupée</button></div></label>
+    <label>Taille des textes<div class="seg" id="oTs"><button class="btn" data-v="1.2">Normale</button><button class="btn on" data-v="1.75">Grande</button><button class="btn" data-v="2.2">Très grande</button></div></label>
     <label>Aide à la progression<div class="seg" id="oHelp"><button class="btn on" data-v="1">Récit (indices auto)</button><button class="btn" data-v="0">Sans aide</button></div></label>
   </div>
   <div id="ctrls"></div>
@@ -223,6 +257,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="row"><label class="lbl" style="display:grid;gap:6px">Ton prénom<input type="text" id="nP" maxlength="16" placeholder="Prénom" autocomplete="off"></label><div class="seg" id="gP"><button class="btn on" data-v="m">Il</button><button class="btn" data-v="f">Elle</button></div></div>
       <div class="row"><label class="lbl" style="display:grid;gap:6px">Ton meilleur ami(e)<input type="text" id="nF" maxlength="16" placeholder="Prénom" autocomplete="off"></label><div class="seg" id="gF"><button class="btn on" data-v="m">Il</button><button class="btn" data-v="f">Elle</button></div></div>
     </div>
+    <div class="seg" id="tTs" style="justify-content:center"><button class="btn" data-v="1.2">Aa normal</button><button class="btn on" data-v="1.75">Aa grand</button><button class="btn" data-v="2.2">Aa très grand</button></div>
     <div class="menu">
       <button class="btn prim" id="tNew">Nouvelle partie</button>
       <button class="btn" id="tCont" hidden>Continuer</button>
@@ -5039,7 +5074,8 @@ const store = { get(k, d) { try { const v = localStorage.getItem('site3-' + k); 
   set(k, v) { try { localStorage.setItem('site3-' + k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem('site3-' + k); } catch (e) {} } };
 
 // ---------------------------------------------------------------- options et identité
-const OPT = Object.assign({ sens: 1, inv: 0, q: null, voice: 1, help: 1 }, store.get('opt', {}));
+const OPT = Object.assign({ sens: 1, inv: 0, q: null, voice: 1, help: 1, ts: 1.75 }, store.get('opt', {}));
+function applyTs() { document.documentElement.style.setProperty('--ts', OPT.ts || 1.75); document.querySelectorAll('#oTs .btn,#tTs .btn').forEach(b => b.classList.toggle('on', +b.dataset.v === +(OPT.ts || 1.75))); }
 const ID = { p: 'Alex', pg: 'm', f: 'Sam', fg: 'm' };
 const gP = (m, f) => ID.pg === 'f' ? f : m, gF = (m, f) => ID.fg === 'f' ? f : m;
 const fil = s => s.replace(/\{P\}/g, ID.p).replace(/\{F\}/g, ID.f).replace(/\{e\}/g, gP('', 'e')).replace(/\{fe\}/g, gF('', 'e'))
@@ -6623,7 +6659,9 @@ async function startNew() { for (const id of ['nP', 'nF']) if (!$(id).value.trim
   $('title').hidden = true; document.body.classList.add('playing'); GAME.on = true; A.noRender = false; UI.syncDevice(); $('fade').classList.add('on'); store.del('save'); await prologue(); }
 async function startCont() { AU.init(); VOICE.unlock(); $('title').hidden = true; document.body.classList.add('playing'); GAME.on = true; A.noRender = false; UI.syncDevice(); $('fade').classList.add('on'); $('hud').hidden = false;
   if (!await loadGame()) { location.reload(); return; } FRIEND.ch.setLook(Object.assign({ name: ID.f }, friendLook())); A.setEnv(ENV_MINE, true); AU.setAmb(.8); await UI.fade(false, 1.2); }
-$('tNew').onclick = startNew; $('tCont').onclick = startCont;
+$('tNew').onclick = startNew;
+for (const id of ['oTs', 'tTs']) $(id).querySelectorAll('.btn').forEach(b => b.onclick = () => { OPT.ts = +b.dataset.v; store.set('opt', OPT); applyTs(); });
+applyTs(); $('tCont').onclick = startCont;
 addEventListener('mouseup', () => IN.held.delete('act')); $('c').addEventListener('mousedown', () => { if (IN.ptrLock) IN.held.add('act'); });
 async function boot() {
   try { initEngine(); } catch (e) { $('err').hidden = false; $('err').textContent = 'WebGL 2 est indisponible sur cet appareil. Ouvre le jeu dans Safari (iPhone / iPad) ou un navigateur récent.'; return; }
