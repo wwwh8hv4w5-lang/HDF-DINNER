@@ -1,5 +1,5 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8">
-<title>HDF : INSIDE v1.1</title>
+<title>HDF : INSIDE v1.2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>
 :root{--ink:#e8edf2;--dim:#8f9aa6;--amb:#e0b050;--cy:#5fd0e6;--bg:#04060a;--sl:max(14px,env(safe-area-inset-left,0px));--sr:max(14px,env(safe-area-inset-right,0px));--st:max(10px,env(safe-area-inset-top,0px));--sb:max(12px,env(safe-area-inset-bottom,0px))}
@@ -10,6 +10,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 .glass{background:rgba(6,9,14,.74);border:1px solid rgba(140,170,210,.22);border-radius:10px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 button{font:inherit;color:inherit;cursor:pointer}
 .btn{display:block;width:100%;padding:13px 16px;margin:7px 0;background:rgba(14,20,28,.85);border:1px solid rgba(140,170,210,.3);border-radius:8px;font-size:17px;letter-spacing:.04em;text-align:left;min-height:48px}
+.btn.foc{border-color:var(--amb);background:rgba(60,46,16,.9);box-shadow:0 0 0 2px rgba(224,176,80,.5)}
+#aideP{position:fixed;right:var(--sr);bottom:var(--sb);z-index:70;font-size:12px;letter-spacing:.06em;color:#9fb0c0;background:rgba(6,9,14,.7);border:1px solid rgba(140,170,210,.2);border-radius:8px;padding:6px 10px;pointer-events:none}
 .btn:hover,.btn:focus-visible,.btn.sel{border-color:var(--amb);outline:none;background:rgba(40,32,14,.85)}
 .btn small{display:block;color:var(--dim);font-size:12px;margin-top:3px;letter-spacing:.02em}
 #studio,#avert,#titre,#fin,#menu,#journal,#slots,#lettre{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:30}
@@ -69,7 +71,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <canvas id="c" tabindex="0"></canvas>
 <div id="hud" hidden>
   <div id="rep"></div>
-  <div id="tag" class="glass"><b>HDF : INSIDE</b> · <span id="tv">v1.1</span> · <span id="tj">Jour 1</span></div>
+  <div id="tag" class="glass"><b>HDF : INSIDE</b> · <span id="tv">v1.2</span> · <span id="tj">Jour 1</span></div>
   <div id="btnsH"><button id="bJ" class="glass">Journal</button><button id="bM" class="glass">Menu</button></div>
   <button id="prompt" class="glass" hidden></button>
   <div id="toast" class="glass"></div>
@@ -78,12 +80,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 </div>
 <div id="stick" hidden><i></i></div>
 <div id="noir"></div>
+<div id="aideP" hidden>↑↓ naviguer · ✕ valider · ○ retour · △ journal · OPTIONS pause</div>
 <div id="studio"><canvas id="studioC"></canvas></div>
 <div id="avert" hidden><div class="boite glass"><h2>Avertissement</h2><p><b>HDF : INSIDE</b> est un thriller psychologique : captivité, expériences sur des personnes, pression mentale, voix et scènes inquiétantes. Aucune violence graphique, mais l'ambiance est pesante.</p><p>Déconseillé aux moins de 16 ans. Casque recommandé.</p><button id="avOk" class="btn">J'ai compris, continuer</button></div></div>
 <div id="titre" hidden><div style="text-align:center;width:min(420px,90vw)">
   <h1>HDF : INSIDE</h1><div class="sub">Site 2 · Secteur Omega</div>
   <div id="tMenu"></div></div>
-  <div class="stu">F.S.M GAME HOUSE</div><div class="ver" id="tver">v1.1</div></div>
+  <div class="stu">F.S.M GAME HOUSE</div><div class="ver" id="tver">v1.2</div></div>
 <div id="slots" hidden><div class="boite glass"><h2 id="slTitre">Emplacements</h2><div id="slListe"></div><button id="slRetour" class="btn">Retour</button></div></div>
 <div id="menu" hidden><div class="boite glass"><h2>Pause</h2><div id="mnListe"></div></div></div>
 <div id="journal" hidden><div class="boite glass"><h2>Journal</h2><div class="onglets"><button id="jN" class="btn sel">Ce que je sais</button><button id="jL" class="btn">Lettres</button></div><div id="jCorps"></div><button id="jFerme" class="btn">Fermer</button></div></div>
@@ -5166,11 +5169,11 @@ NOTE INTERNE (pour Claude) : repères pour naviguer sans tout relire
  · Drapeaux clés : S.flags.{karim, marche, cache, rondes, dicto, page7, visite, route, fin...} ; S.conf.{helene, lemoine, verhaegen, karim} ; sorelVivant() ; temoinOK() ; preuves().
  · Fins : A retrait légal · B évasion · C sabotage · D transfert accepté · E retrait partiel · F sacrifice (jour36() dans jours_04.js).
  · Perf (iPad 10) : PerfGuard (initPG, ?pg=1 pour le bandeau) ; décor < 6 000 triangles par salle ; salles hors champ (far = 80).
- · Test : window.__BC (speed, allerA(jour, flags, conf), dbg(), agir(id), pulse(), choix). Logo du studio : dessinerLogo() est PROVISOIRE (le vrai logo n'a pas été fourni).
+ · Manette PS4 : navUI() navigue tous les écrans (d-pad/stick, ✕ valider, ○ retour, △ journal, OPTIONS pause, L1/R1 onglets) ; audio iOS : premierGeste() (pointerdown/up, touchend, click, keydown) → Snd.unlock + amorcerVoix() (voix de synthèse activées par défaut, amorcées au 1er geste).\n · Test : window.__BC (speed, allerA(jour, flags, conf), dbg(), agir(id), pulse(), choix). Logo du studio : dessinerLogo() est PROVISOIRE (le vrai logo n'a pas été fourni).
 */
 (function () {
 'use strict';
-const VER = 'v1.1', NOM = 'HDF : INSIDE';
+const VER = 'v1.2', NOM = 'HDF : INSIDE';
 const $ = id => document.getElementById(id), clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const F = FSM3D, M3 = F.math, GEO = F.geo, PI = Math.PI, TAU = PI * 2;
 const touch = matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints > 1;
@@ -5201,7 +5204,9 @@ const Snd = (() => {
   function init() { if (ctx) return; const AC = self.AudioContext || self.webkitAudioContext; if (!AC) return; ctx = new AC(); master = ctx.createGain(); master.gain.value = OPT.vol;
     const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
     const n = ctx.sampleRate * 2, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0); let last = 0; for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; last = (last + .02 * w) / 1.02; d[i] = last * 3.2; } noiseBuf = b; }
-  api.unlock = () => { init(); if (ctx && ctx.state !== 'running') ctx.resume(); };
+  api.unlock = () => { init(); if (!ctx) return; try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}   // iOS 17+ : joue même avec le commutateur silencieux
+    if (ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} } if (!api._s) { api._s = 1; try { const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(0); } catch (e) {} } };
+  api.etat = () => ctx ? ctx.state : 'aucun';
   api.keepAlive = () => { if (ctx && ctx.state !== 'running') ctx.resume(); };
   api.vol = v => { if (master) master.gain.value = v; };
   const noise = (dur, f, q, g, type = 'lowpass', when = 0, loop = false) => { if (!ctx) return null; const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; const fl = ctx.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q;
@@ -5234,8 +5239,12 @@ const Snd = (() => {
 const VOIX = { omega: { p: 1, r: .92, v: .9 }, helene: { p: .82, r: .88, v: .55 }, lemoine: { p: .55, r: .9, v: .95 }, karim: { p: 1.15, r: 1.12, v: .7 }, ilona: { p: 1.02, r: .8, v: .9 }, sorel: { p: .5, r: .78, v: .6 }, verhaegen: { p: .92, r: .9, v: .85 }, brandt: { p: .4, r: 1, v: 1 }, unite: { p: .82, r: .86, v: .6 }, lea: { p: 1.5, r: 1, v: .7 }, moi: null };
 const COUL = { omega: '#9fb4c8', helene: '#d8b8c4', lemoine: '#b8c8e0', karim: '#e0c890', ilona: '#e8d6a8', sorel: '#b8d0b0', verhaegen: '#a8d8d0', brandt: '#d89090', unite: '#b0b8c4', lea: '#f0d8e8', moi: '#bcc8d4' };
 const NOMS = { omega: 'Système', helene: 'Hélène', lemoine: 'Garde', karim: 'Karim', ilona: 'Ilona', sorel: 'Sorel', verhaegen: 'Dr Verhaegen', brandt: 'Brandt', unite: 'Unité', lea: 'Léa', moi: '' };
-function parler(who, txt) { try { const V = VOIX[who]; if (!OPT.voix || !V || !self.speechSynthesis) return; const u = new SpeechSynthesisUtterance(txt.replace(/\*/g, '')); u.lang = 'fr-FR'; u.pitch = V.p; u.rate = V.r; u.volume = V.v * OPT.vol;
-  const vs = speechSynthesis.getVoices().filter(v => /^fr/i.test(v.lang)); if (vs.length) u.voice = vs[who === 'helene' || who === 'omega' || who === 'ilona' ? Math.min(1, vs.length - 1) : 0] || vs[0]; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} }
+let voixAmorcee = false;
+function amorcerVoix() { if (voixAmorcee || !self.speechSynthesis) return; voixAmorcee = true; try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'fr-FR'; speechSynthesis.speak(u); speechSynthesis.getVoices(); } catch (e) {} }   // iOS exige un premier speak() lancé par un geste
+function voixFr(who) { const vs = speechSynthesis.getVoices().filter(v => /^fr/i.test(v.lang)); if (!vs.length) return null; const Fm = /am[eé]lie|audrey|aur[eé]lie|marie|julie|virginie|c[eé]line|denise|eloise|sandy|shelley|flo/i, Ma = /thomas|nicolas|daniel|henri|paul|jacques|claude|reed|rocko|eddy/i, fem = ['helene', 'ilona', 'verhaegen', 'omega', 'unite', 'lea'].includes(who), re = fem ? Fm : Ma;
+  return vs.find(v => re.test(v.name) && /fr-FR/i.test(v.lang)) || vs.find(v => re.test(v.name)) || vs.find(v => /fr-FR/i.test(v.lang)) || vs[0]; }
+function parler(who, txt) { try { const V = VOIX[who]; if (!OPT.voix || !V || !self.speechSynthesis) return; const u = new SpeechSynthesisUtterance(txt.replace(/\*/g, '')); u.lang = 'fr-FR'; u.pitch = V.p; u.rate = V.r; u.volume = clamp(V.v * OPT.vol, 0, 1); try { const v = voixFr(who); if (v) u.voice = v; } catch (e) {}
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); setTimeout(() => { try { speechSynthesis.speak(u); } catch (e) {} }, 70); } catch (e) {} }
 
 /* ============================== 3. SCÈNE ============================== */
 const cv = $('c'); let A = null;
@@ -6006,7 +6015,8 @@ function construireCamp() { CAMP.length = 0; for (const n of Object.keys(DAYS).m
 async function carteJour(n) { $('noir').style.opacity = 1; Snd.niveau(.5); $('cjN').textContent = 'Jour ' + n; $('cjT').textContent = (DAYS[n] && DAYS[n].titre) || ''; $('carte').hidden = false; await attendre(3.4); $('carte').hidden = true; }
 /* ============================== 5. ENTRÉES ============================== */
 const keys = {}; let stick = null, vue = null; const stickEl = $('stick'), stickK = stickEl.firstElementChild;
-const GP = { on: false, btn: {}, ax: [0, 0, 0, 0], t: 0 };
+const GP = { on: false, btn: {}, ax: [0, 0, 0, 0], t: 0, fi: 0, sy: 0, ovId: '' };
+function majGlyphes() { const on = GP.on; if (majGlyphes.v === on) return; majGlyphes.v = on; $('aideP').hidden = !on; $('bJ').textContent = on ? 'Journal (△)' : 'Journal'; $('bM').textContent = on ? 'Menu (OPTIONS)' : 'Menu'; if (!on) document.querySelectorAll('.foc').forEach(e => e.classList.remove('foc')); }
 function maj() { /* mise à jour du joueur, caméra */ }
 addEventListener('keydown', e => { keys[e.code] = true; if (/^(Arrow|Space)/.test(e.code)) e.preventDefault();
   if (S.mode !== 'jeu') return; if (CURJEU.cur) { CURJEU.cur.key && CURJEU.cur.key(e); return; }
@@ -6022,9 +6032,18 @@ cv.addEventListener('pointermove', e => { if (stick && e.pointerId === stick.id)
 const lacher = e => { if (stick && e.pointerId === stick.id) { stick = null; stickEl.hidden = true; } if (vue && e.pointerId === vue.id) vue = null; };
 cv.addEventListener('pointerup', lacher); cv.addEventListener('pointercancel', lacher);
 const dz = v => Math.abs(v) < .16 ? 0 : v;
-function lireManette(dt) { let p = null; try { const g = navigator.getGamepads ? navigator.getGamepads() : []; for (const x of g) if (x && x.axes && x.axes.length >= 4) { p = x; break; } } catch (e) {} GP.on = !!p; if (!p) { GP.ax = [0, 0, 0, 0]; return; }
+function overlayActif() { for (const id of ['lettre', 'journal', 'slots', 'menu', 'fin', 'titre', 'avert']) { const el = $(id); if (el && !el.hidden) return el; } return null; }
+function navUI(ov, edge) { const bts = [...ov.querySelectorAll('button')].filter(b => b.offsetParent !== null); if (GP.ovId !== ov.id) { GP.ovId = ov.id; GP.fi = 0; } const n = bts.length; if (!n) return;
+  const sy = GP.ax[1] > .6 ? 1 : GP.ax[1] < -.6 ? -1 : 0, st = sy && sy !== GP.sy; GP.sy = sy; const dn = edge(13) || (st && sy > 0), up = edge(12) || (st && sy < 0); if (dn) GP.fi = (GP.fi + 1) % n; if (up) GP.fi = (GP.fi - 1 + n) % n; GP.fi = Math.min(GP.fi, n - 1);
+  document.querySelectorAll('.foc').forEach(e => e.classList.remove('foc')); bts[GP.fi].classList.add('foc'); if (bts[GP.fi].scrollIntoView && (dn || up)) bts[GP.fi].scrollIntoView({ block: 'nearest' });
+  if (edge(0)) { Snd.clic(); bts[GP.fi].click(); }
+  if (edge(1)) { if (ov.id === 'lettre') $('leFerme').click(); else if (ov.id === 'journal') $('jFerme').click(); else if (ov.id === 'slots') $('slRetour').click(); else if (ov.id === 'menu') basculerMenu(); }
+  if (edge(9) && ov.id === 'menu') basculerMenu(); if (ov.id === 'journal') { if (edge(4)) $('jN').click(); if (edge(5)) $('jL').click(); } }
+function lireManette(dt) { let p = null; try { const g = navigator.getGamepads ? navigator.getGamepads() : []; for (const x of g) if (x && x.axes && x.axes.length >= 4) { p = x; break; } } catch (e) {} GP.on = !!p; if (!p) { GP.ax = [0, 0, 0, 0]; majGlyphes(); return; } majGlyphes();
   GP.ax = [dz(p.axes[0]), dz(p.axes[1]), dz(p.axes[2]), dz(p.axes[3])]; const was = GP.btn; GP.btn = {}; let any = false; p.buttons.forEach((b, i) => { GP.btn[i] = !!b.pressed; if (b.pressed) any = true; });
-  const edge = i => GP.btn[i] && !was[i]; if (any) Snd.keepAlive();   // correctif audio manette : on relance l'audio à chaque appui
+  const edge = i => GP.btn[i] && !was[i]; if (any) { Snd.keepAlive(); amorcerVoix(); }   // correctif audio manette : on relance l'audio à chaque appui
+  if (!$('studio').hidden) { if (edge(0) || edge(1) || edge(2) || edge(3) || edge(9)) $('studio').dispatchEvent(new Event('pointerdown')); return; }
+  const ov = overlayActif(); if (ov) { navUI(ov, edge); return; }
   if (S.mode !== 'jeu') return;
   if (edge(9)) basculerMenu(); if (S.pause) return;
   if (CH.cur) { if (edge(12)) CH.cur.mv(-1); if (edge(13)) CH.cur.mv(1); if (edge(0)) CH.cur.ok(); return; }
@@ -6053,7 +6072,7 @@ function dessinerLogo(g, w, h, k) { /* LOGO PROVISOIRE : monogramme F.S.M (à re
   g.save(); g.globalAlpha = clamp((k - .25) * 2.4, 0, 1); g.fillStyle = '#e9eef3'; g.font = '800 ' + Math.round(R * .78) + 'px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('FSM', cx, cy + R * .04); g.restore();
   g.save(); g.globalAlpha = clamp((k - .55) * 2.6, 0, 1); g.fillStyle = '#dfe6ec'; g.font = '600 ' + Math.round(R * .3) + 'px Arial, sans-serif'; g.textAlign = 'center'; g.fillText('F.S.M Game House', cx, cy + R * 1.65); g.restore(); }
 function studio() { return new Promise(ok => { const c = $('studioC'), g = c.getContext('2d'); const fit = () => { c.width = innerWidth; c.height = innerHeight; }; fit(); let st = 0, t0 = 0, done = false; const fin = () => { if (done) return; done = true; $('studio').hidden = true; ok(); };
-  const att = () => { dessinerLogo(g, c.width, c.height, 0); g.fillStyle = '#6f7a86'; g.font = '16px Arial, sans-serif'; g.textAlign = 'center'; g.fillText('Touchez pour commencer', c.width / 2, c.height * .8); };
+  const att = () => { dessinerLogo(g, c.width, c.height, 0); g.fillStyle = '#6f7a86'; g.font = '16px Arial, sans-serif'; g.textAlign = 'center'; g.fillText('Touchez pour commencer (son et voix)', c.width / 2, c.height * .8); };
   att(); const go = () => { if (st === 0) { st = 1; Snd.unlock(); Snd.ambiance(true); Snd.niveau(.5); t0 = performance.now(); const anim = () => { if (done) return; const k = clamp((performance.now() - t0) / 3600, 0, 1); dessinerLogo(g, c.width, c.height, k); if (performance.now() - t0 > 4800) { Snd.ambiance(false); return fin(); } requestAnimationFrame(anim); }; anim(); Snd.coeur(2, .25); } else { Snd.ambiance(false); fin(); } };
   $('studio').addEventListener('pointerdown', go); addEventListener('keydown', e => { if ($('studio').hidden) return; go(); }); }); }
 function avertissement() { return new Promise(ok => { let vu = false; try { vu = localStorage.getItem('blocc.avert') === '1'; } catch (e) {} if (vu) return ok(); $('avert').hidden = false; $('avOk').onclick = () => { try { localStorage.setItem('blocc.avert', '1'); } catch (e) {} $('avert').hidden = true; ok(); }; }); }
@@ -6096,6 +6115,10 @@ DBG.pulse = () => { INP.ptr = true; if (CURJEU.cur && CURJEU.cur.press) CURJEU.c
 DBG.entrer = entrer; DBG.CAST = CAST; DBG.Joe_on = Joe_on; DBG.sortir = sortir; DBG.JOE = () => JOE; DBG.TEXD = TEXD; DBG.ecranImage = ecranImage; DBG.ecranTexte = ecranTexte;
 DBG.dbg = () => ({ wait: WAIT.length, tw: TW.length, room: S.room, busy: S.busy, pause: S.pause, lock: Cm.lock, cur: !!CURJEU.cur, jeu: !$('jeu').hidden, sous: $('sous').textContent.slice(0, 60), noir: $('noir').style.opacity, step: S.step, ch: !$('choix').hidden, err: self.__ERR || null });
 DBG.go = (n) => { $('studio').hidden = true; $('avert').hidden = true; $('noir').style.opacity = 0; demarrerNouvelle(n || 1); }; DBG.S = S; DBG.obj = OBJ; DBG.cm = Cm; DBG.agir = id => OBJ.find(o => o.id === id).act(); DBG.world = W; DBG.jouer = jouer;
+function premierGeste() { Snd.unlock(); amorcerVoix(); }
+['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach(t => addEventListener(t, premierGeste, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) Snd.keepAlive(); });
+DBG.audio = () => ({ ctx: Snd.etat(), voix: OPT.voix, amorcee: voixAmorcee });
 precharger();
 (async () => { await studio(); await avertissement(); $('noir').style.opacity = 0; titre(); })();
 })();
