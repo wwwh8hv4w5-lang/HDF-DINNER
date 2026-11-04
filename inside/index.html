@@ -5239,12 +5239,16 @@ const Snd = (() => {
 const VOIX = { omega: { p: 1, r: .92, v: .9 }, helene: { p: .82, r: .88, v: .55 }, lemoine: { p: .55, r: .9, v: .95 }, karim: { p: 1.15, r: 1.12, v: .7 }, ilona: { p: 1.02, r: .8, v: .9 }, sorel: { p: .5, r: .78, v: .6 }, verhaegen: { p: .92, r: .9, v: .85 }, brandt: { p: .4, r: 1, v: 1 }, unite: { p: .82, r: .86, v: .6 }, lea: { p: 1.5, r: 1, v: .7 }, moi: null };
 const COUL = { omega: '#9fb4c8', helene: '#d8b8c4', lemoine: '#b8c8e0', karim: '#e0c890', ilona: '#e8d6a8', sorel: '#b8d0b0', verhaegen: '#a8d8d0', brandt: '#d89090', unite: '#b0b8c4', lea: '#f0d8e8', moi: '#bcc8d4' };
 const NOMS = { omega: 'Système', helene: 'Hélène', lemoine: 'Garde', karim: 'Karim', ilona: 'Ilona', sorel: 'Sorel', verhaegen: 'Dr Verhaegen', brandt: 'Brandt', unite: 'Unité', lea: 'Léa', moi: '' };
-let voixAmorcee = false;
-function amorcerVoix() { if (voixAmorcee || !self.speechSynthesis) return; voixAmorcee = true; try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'fr-FR'; speechSynthesis.speak(u); speechSynthesis.getVoices(); } catch (e) {} }   // iOS exige un premier speak() lancé par un geste
+let voixAmorcee = false, voixOk = false, voixTent = 0; const voixRefs = []; let voixSeq = 0;   // voixOk : une vraie parole a démarré (onstart) ; voixRefs : iOS/iPadOS ramasse les énoncés non référencés avant la fin
+function amorcerVoix() { if (voixOk || !self.speechSynthesis) return; if (voixTent > 12) return; voixTent++; voixAmorcee = true; try { speechSynthesis.resume(); const u = new SpeechSynthesisUtterance('.'); u.volume = 0.01; u.lang = 'fr-FR'; u.onstart = () => { voixOk = true; }; u.onend = u.onerror = () => { const i = voixRefs.indexOf(u); if (i >= 0) voixRefs.splice(i, 1); }; voixRefs.push(u); speechSynthesis.speak(u); speechSynthesis.getVoices(); } catch (e) {} }   // iPad/iOS : un énoncé vide (' ') est ignoré et n'« ouvre » pas la voix ; on amorce avec un vrai son quasi muet à chaque geste jusqu'à ce qu'il démarre vraiment
+try { if (self.speechSynthesis) { speechSynthesis.getVoices(); if ('onvoiceschanged' in speechSynthesis) speechSynthesis.addEventListener('voiceschanged', () => { try { speechSynthesis.getVoices(); } catch (e) {} }); } } catch (e) {}
 function voixFr(who) { const vs = speechSynthesis.getVoices().filter(v => /^fr/i.test(v.lang)); if (!vs.length) return null; const Fm = /am[eé]lie|audrey|aur[eé]lie|marie|julie|virginie|c[eé]line|denise|eloise|sandy|shelley|flo/i, Ma = /thomas|nicolas|daniel|henri|paul|jacques|claude|reed|rocko|eddy/i, fem = ['helene', 'ilona', 'verhaegen', 'omega', 'unite', 'lea'].includes(who), re = fem ? Fm : Ma;
   return vs.find(v => re.test(v.name) && /fr-FR/i.test(v.lang)) || vs.find(v => re.test(v.name)) || vs.find(v => /fr-FR/i.test(v.lang)) || vs[0]; }
-function parler(who, txt) { try { const V = VOIX[who]; if (!OPT.voix || !V || !self.speechSynthesis) return; const u = new SpeechSynthesisUtterance(txt.replace(/\*/g, '')); u.lang = 'fr-FR'; u.pitch = V.p; u.rate = V.r; u.volume = clamp(V.v * OPT.vol, 0, 1); try { const v = voixFr(who); if (v) u.voice = v; } catch (e) {}
-  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); setTimeout(() => { try { speechSynthesis.speak(u); } catch (e) {} }, 70); } catch (e) {} }
+function parler(who, txt, essai) { try { const V = VOIX[who]; if (!OPT.voix || !V || !self.speechSynthesis) return; const u = new SpeechSynthesisUtterance(txt.replace(/\*/g, '')); u.lang = 'fr-FR'; u.pitch = V.p; u.rate = V.r; u.volume = clamp(V.v * OPT.vol, 0.05, 1); try { const v = voixFr(who); if (v) u.voice = v; } catch (e) {}
+  const mon = ++voixSeq; let demarre = false; const fin = () => { const i = voixRefs.indexOf(u); if (i >= 0) voixRefs.splice(i, 1); }; u.onstart = () => { demarre = true; voixOk = true; }; u.onend = fin; u.onerror = fin; voixRefs.push(u); if (voixRefs.length > 6) voixRefs.shift();   // référence gardée jusqu'à la fin (bug iOS : énoncé ramassé = silence)
+  const occupe = speechSynthesis.speaking || speechSynthesis.pending; try { speechSynthesis.resume(); } catch (e) {} if (occupe) speechSynthesis.cancel();
+  setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) {} }, occupe ? 160 : 40);   // iOS : cancel() suivi d'un speak() immédiat est avalé
+  if (!essai) setTimeout(() => { if (mon === voixSeq && !demarre && OPT.voix && !speechSynthesis.speaking) { try { speechSynthesis.cancel(); } catch (e) {} setTimeout(() => { if (mon === voixSeq) parler(who, txt, 1); }, 120); } }, 1500); } catch (e) {} }
 
 /* ============================== 3. SCÈNE ============================== */
 const cv = $('c'); let A = null;
@@ -6118,7 +6122,7 @@ DBG.go = (n) => { $('studio').hidden = true; $('avert').hidden = true; $('noir')
 function premierGeste() { Snd.unlock(); amorcerVoix(); }
 ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach(t => addEventListener(t, premierGeste, { capture: true, passive: true }));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) Snd.keepAlive(); });
-DBG.audio = () => ({ ctx: Snd.etat(), voix: OPT.voix, amorcee: voixAmorcee });
+DBG.parler = parler; DBG.audio = () => ({ ctx: Snd.etat(), voix: OPT.voix, amorcee: voixAmorcee, voixOk: voixOk });
 precharger();
 (async () => { await studio(); await avertissement(); $('noir').style.opacity = 0; titre(); })();
 })();
